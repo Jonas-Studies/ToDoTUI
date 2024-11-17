@@ -1,1 +1,3 @@
-pub trait IsContent {}
+use ratatui::widgets::WidgetRef;
+
+pub trait IsContent: WidgetRef {}
