@@ -2,7 +2,8 @@ use crate::Task;
 
 use super::{
     content::TextField,
-    field::Field
+    field::Field,
+    traits::CanBeFocused
 };
 
 use ratatui::{
@@ -35,10 +36,11 @@ impl Application <'_> {
             ).add_modifier(Modifier::BOLD)
         );
 
-        let name = Field::new(
+        let mut name = Field::new(
             name_area,
             TextField::new(task_to_edit.get_name(), String::from("Name"))
         );
+        name.focus();
 
         Self { status, name }
     }

@@ -1,4 +1,4 @@
-use super::traits::IsContent;
+use super::traits::{CanBeFocused, IsContent};
 
 use ratatui::prelude::{Rect, Buffer};
 
@@ -14,5 +14,14 @@ impl <Content> Field <Content> where Content: IsContent {
 
     pub fn render (& self, buffer: & mut Buffer) {
         self.content.render_ref(self.area, buffer);
+    }
+}
+
+impl <Content> CanBeFocused for Field <Content> where Content: IsContent {
+    fn focus(& mut self) {
+        self.content.focus();
+    }
+    fn unfocus(& mut self) {
+        self.content.unfocus();
     }
 }
