@@ -3,7 +3,7 @@ use ratatui::{
     widgets::WidgetRef
 };
 
-pub trait IsContent: WidgetRef + CanBeFocused {}
+pub trait IsContent: WidgetRef + CanBeFocused + MayDisplayCursor {}
 
 pub trait CanBeFocused {
     fn focus(& mut self);

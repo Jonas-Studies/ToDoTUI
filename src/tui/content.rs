@@ -1,7 +1,7 @@
-use super::traits::{IsContent, CanBeFocused};
+use super::traits::{IsContent, CanBeFocused, MayDisplayCursor};
 
 use ratatui::{
-    prelude::{Buffer, Rect},
+    prelude::{Buffer, Rect, Position},
     widgets::{WidgetRef, Block, Paragraph},
     style::{Style, Color}
 };
@@ -11,6 +11,12 @@ impl IsContent for Paragraph <'_> {}
 impl CanBeFocused for Paragraph <'_> {
     fn focus(& mut self) {}
     fn unfocus(& mut self) {}
+}
+
+impl MayDisplayCursor for Paragraph <'_> {
+    fn get_cursor_position(& self) -> Option<Position> {
+        None
+    }
 }
 
 pub struct TextField <'textfields_lifetime> {
@@ -40,5 +46,12 @@ impl CanBeFocused for TextField <'_> {
     }
     fn unfocus(& mut self) {
         self.borders = self.borders.clone().style(Style::default());
+    }
+}
+
+impl MayDisplayCursor for TextField <'_> {
+    fn get_cursor_position(& self) -> Option<Position> {
+        // Position of 1, 1 because the Textfield is getting rendered with borders
+        Some(Position::new(1, 1))
     }
 }
