@@ -7,6 +7,8 @@ use crate::Task;
 
 use ratatui::crossterm::event::{self, Event, KeyEventKind, KeyCode};
 
+use traits::MayDisplayCursor;
+
 pub fn edit_one_task (task_to_edit: & mut Task) {
     let mut terminal = ratatui::init();
 
@@ -14,7 +16,11 @@ pub fn edit_one_task (task_to_edit: & mut Task) {
 
     terminal.draw(
         |frame| {
-            app.render(frame.buffer_mut())
+            app.render(frame.buffer_mut());
+
+            if let Some(cursor_position) = app.get_cursor_position() {
+                frame.set_cursor_position(cursor_position);
+            }
         }
     ).expect("Failed to draw the app to the terminal");
 

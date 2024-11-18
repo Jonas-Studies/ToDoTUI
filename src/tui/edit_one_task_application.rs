@@ -3,11 +3,11 @@ use crate::Task;
 use super::{
     content::TextField,
     field::Field,
-    traits::CanBeFocused
+    traits::{CanBeFocused, MayDisplayCursor}
 };
 
 use ratatui::{
-    prelude::Buffer,
+    prelude::{Buffer, Position},
     widgets::Paragraph,
     layout::{Rect, Layout, Constraint},
     style::{Stylize, Modifier}
@@ -48,5 +48,11 @@ impl Application <'_> {
     pub fn render (& self, buffer: & mut Buffer) {
         self.status.render(buffer);
         self.name.render(buffer);
+    }
+}
+
+impl MayDisplayCursor for Application <'_> {
+    fn get_cursor_position(& self) -> Option<Position> {
+        self.name.get_cursor_position()
     }
 }

@@ -1,6 +1,6 @@
-use super::traits::{CanBeFocused, IsContent};
+use super::traits::{CanBeFocused, IsContent, MayDisplayCursor};
 
-use ratatui::prelude::{Rect, Buffer};
+use ratatui::prelude::{Rect, Buffer, Position};
 
 pub struct Field <Content> where Content: IsContent {
     area: Rect,
@@ -23,5 +23,19 @@ impl <Content> CanBeFocused for Field <Content> where Content: IsContent {
     }
     fn unfocus(& mut self) {
         self.content.unfocus();
+    }
+}
+
+impl <Content> MayDisplayCursor for Field <Content> where Content: IsContent {
+    fn get_cursor_position(& self) -> Option<Position> {
+        if let Some(mut position) = self.content.get_cursor_position() {
+            position.x += self.area.x;
+            position.y += self.area.y;
+
+            Some(position)
+        }
+        else {
+            None
+        }
     }
 }
