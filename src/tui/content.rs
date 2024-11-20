@@ -45,6 +45,12 @@ impl TextField <'_> {
     fn move_cursor_left(& mut self) {
         self.cursor_offset -= 1;
     }
+    fn move_cursor_end(& mut self) {
+        self.cursor_offset = self.text.len();
+    }
+    fn move_cursor_start(& mut self) {
+        self.cursor_offset = 0;
+    }
 }
 
 impl IsContent for TextField <'_> {}
@@ -83,6 +89,12 @@ impl CanHandleUserinput for TextField <'_> {
                 if self.can_cursor_move_left() {
                     self.move_cursor_left()
                 }
+            }
+            KeyCode::End => {
+                self.move_cursor_end();
+            }
+            KeyCode::Home => {
+                self.move_cursor_start();
             }
             _ => {}
         }
