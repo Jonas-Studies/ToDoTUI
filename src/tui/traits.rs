@@ -2,7 +2,7 @@ use ratatui::{
     crossterm::event::KeyCode, prelude::Position, widgets::WidgetRef
 };
 
-pub trait IsContent: WidgetRef + CanBeFocused + MayDisplayCursor {}
+pub trait IsContent: WidgetRef + CanBeFocused + MayDisplayCursor + CanHandleUserinput {}
 
 pub trait CanBeFocused {
     fn focus(& mut self);
