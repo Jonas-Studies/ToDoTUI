@@ -1,9 +1,7 @@
-use super::traits::{IsContent, CanBeFocused, MayDisplayCursor};
+use super::traits::{IsContent, CanBeFocused, MayDisplayCursor, CanHandleUserinput};
 
 use ratatui::{
-    prelude::{Buffer, Rect, Position},
-    widgets::{WidgetRef, Block, Paragraph},
-    style::{Style, Color}
+    crossterm::event::KeyCode, prelude::{Buffer, Position, Rect}, style::{Color, Style}, widgets::{Block, Paragraph, WidgetRef}
 };
 
 impl IsContent for Paragraph <'_> {}
@@ -19,16 +17,33 @@ impl MayDisplayCursor for Paragraph <'_> {
     }
 }
 
+impl CanHandleUserinput for Paragraph <'_> {
+    fn handle_userinput(& mut self, _userinput: & KeyCode) {}
+}
+
 pub struct TextField <'textfields_lifetime> {
     text: String,
-    borders: Block <'textfields_lifetime>
+    borders: Block <'textfields_lifetime>,
+    cursor_offset: usize
 }
 
 impl TextField <'_> {
-    pub fn new (text: String, title: String) -> Self {
+    pub fn new(text: String, title: String) -> Self {
         let borders = Block::bordered().title(title);
 
-        Self { text, borders }
+        Self { text, borders, cursor_offset: 0 }
+    }
+    fn can_cursor_move_right(& self) -> bool {
+        self.cursor_offset < self.text.len()
+    }
+    fn can_cursor_move_left(& self) -> bool {
+        self.cursor_offset > 0
+    }
+    fn move_cursor_right(& mut self) {
+        self.cursor_offset += 1;
+    }
+    fn move_cursor_left(& mut self) {
+        self.cursor_offset -= 1;
     }
 }
 
@@ -51,7 +66,25 @@ impl CanBeFocused for TextField <'_> {
 
 impl MayDisplayCursor for TextField <'_> {
     fn get_cursor_position(& self) -> Option<Position> {
-        // Position of 1, 1 because the Textfield is getting rendered with borders
-        Some(Position::new(1, 1))
+        // Minimum position of 1, 1 because the Textfield is getting rendered with borders
+        Some(Position::new(1 + self.cursor_offset as u16, 1))
+    }
+}
+
+impl CanHandleUserinput for TextField <'_> {
+    fn handle_userinput(& mut self, userinput: & KeyCode) {
+        match userinput {
+            KeyCode::Right => {
+                if self.can_cursor_move_right() {
+                    self.move_cursor_right();
+                }
+            }
+            KeyCode::Left => {
+                if self.can_cursor_move_left() {
+                    self.move_cursor_left()
+                }
+            }
+            _ => {}
+        }
     }
 }
