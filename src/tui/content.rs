@@ -22,7 +22,8 @@ impl CanHandleUserinput for Paragraph <'_> {
 }
 
 pub struct TextField <'textfields_lifetime> {
-    text: String,
+    // The text is getting stored as char-vector as using strings with utf8 does not work here
+    text: Vec<char>,
     borders: Block <'textfields_lifetime>,
     cursor_offset: usize
 }
@@ -30,6 +31,7 @@ pub struct TextField <'textfields_lifetime> {
 impl TextField <'_> {
     pub fn new(text: String, title: String) -> Self {
         let borders = Block::bordered().title(title);
+        let text = Vec::from_iter(text.chars().into_iter());
 
         Self { text, borders, cursor_offset: 0 }
     }
@@ -76,7 +78,7 @@ impl IsContent for TextField <'_> {}
 
 impl WidgetRef for TextField <'_> {
     fn render_ref(& self, area: Rect, buffer: & mut Buffer) {
-        Paragraph::new(self.text.clone()).block(self.borders.clone()).render_ref(area, buffer);
+        Paragraph::new(String::from_iter(self.text.iter().clone())).block(self.borders.clone()).render_ref(area, buffer);
     }
 }
 
