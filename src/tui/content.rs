@@ -35,6 +35,9 @@ impl TextField <'_> {
 
         Self { text, borders, cursor_offset: 0 }
     }
+    pub fn get_text (& self) -> String {
+        String::from_iter(self.text.iter().clone())
+    }
     fn get_index_of_last_character(& self) -> usize {
         self.text.len() - 1
     }
