@@ -51,7 +51,7 @@ pub fn select_one_task (tasks_to_select_from:& Vec<Task>) -> usize {
     loop {
         terminal.draw(
             |frame| {
-                app.render(frame.buffer_mut());
+                app.render(frame);
             }
         ).expect("Failed to draw the app to the terminal");
 
