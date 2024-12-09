@@ -5,8 +5,8 @@ use ratatui::{
 pub trait IsContent: WidgetRef + CanBeFocused + MayDisplayCursor + CanHandleUserinput {}
 
 pub trait CanBeFocused {
-    fn focus(& mut self);
-    fn unfocus(& mut self);
+    fn focused(self) -> Self;
+    fn unfocused(self) -> Self;
 }
 
 pub trait MayDisplayCursor {
