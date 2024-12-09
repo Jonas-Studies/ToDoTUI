@@ -7,8 +7,16 @@ use ratatui::{
 impl IsContent for Paragraph <'_> {}
 
 impl CanBeFocused for Paragraph <'_> {
-    fn focus(& mut self) {}
-    fn unfocus(& mut self) {}
+    fn focused(self) -> Self {
+        self.style(
+            Style::default().fg( Color::Yellow.into() )
+        )
+    }
+    fn unfocused(self) -> Self {
+        self.style(
+            Style::reset()
+        )
+    }
 }
 
 impl MayDisplayCursor for Paragraph <'_> {
