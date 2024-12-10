@@ -53,7 +53,7 @@ impl Application <'_> {
     }
 
     pub fn save_task(& self, task: & mut Task) {
-        task.set_name(self.name.reference_content().get_text());
+        task.set_name(self.name.reference_content().get_value());
     }
 }
 

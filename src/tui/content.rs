@@ -29,9 +29,19 @@ impl CanHandleUserinput for Paragraph <'_> {
     fn handle_userinput(& mut self, _userinput: & KeyCode) {}
 }
 
+impl CanBeFocused for Block <'_> {
+    fn focused(self) -> Self {
+        self.border_style( Style::new().fg(Color::Yellow) )
+    }
+    fn unfocused(self) -> Self {
+        self.border_style( Style::reset() )
+    }
+}
+
+#[derive(Clone)]
 pub struct TextField <'textfields_lifetime> {
     // The text is getting stored as char-vector as using strings with utf8 does not work here
-    text: Vec<char>,
+    value: Vec<char>,
     borders: Block <'textfields_lifetime>,
     cursor_offset: usize
 }
@@ -39,15 +49,15 @@ pub struct TextField <'textfields_lifetime> {
 impl TextField <'_> {
     pub fn new(text: String, title: String) -> Self {
         let borders = Block::bordered().title(title);
-        let text = Vec::from_iter(text.chars().into_iter());
+        let value = Vec::from_iter(text.chars().into_iter());
 
-        Self { text, borders, cursor_offset: 0 }
+        Self { value, borders, cursor_offset: 0 }
     }
-    pub fn get_text (& self) -> String {
-        String::from_iter(self.text.iter().clone())
+    pub fn get_value (& self) -> String {
+        String::from_iter(self.value.iter().clone())
     }
     fn get_index_of_last_character(& self) -> usize {
-        self.text.len() - 1
+        self.value.len() - 1
     }
     fn get_index_of_first_character(& self) -> usize {
         0
@@ -77,10 +87,10 @@ impl TextField <'_> {
         self.cursor_offset = self.get_index_of_first_character();
     }
     fn delete_current_character(& mut self) {
-        self.text.remove(self.cursor_offset);
+        self.value.remove(self.cursor_offset);
     }
     fn delete_previous_character(& mut self) {
-        self.text.remove(self.cursor_offset - 1);
+        self.value.remove(self.cursor_offset - 1);
         self.move_cursor_left();
     }
 }
@@ -89,16 +99,18 @@ impl IsContent for TextField <'_> {}
 
 impl WidgetRef for TextField <'_> {
     fn render_ref(& self, area: Rect, buffer: & mut Buffer) {
-        Paragraph::new(String::from_iter(self.text.iter().clone())).block(self.borders.clone()).render_ref(area, buffer);
+        Paragraph::new(String::from_iter(self.value.iter().clone())).block(self.borders.clone()).render_ref(area, buffer);
     }
 }
 
 impl CanBeFocused for TextField <'_> {
-    fn focus(& mut self) {
-        self.borders = self.borders.clone().border_style(Style::new().fg(Color::Yellow));
+    fn focused(mut self) -> Self {
+        self.borders = self.borders.clone().focused();
+        self
     }
-    fn unfocus(& mut self) {
-        self.borders = self.borders.clone().style(Style::default());
+    fn unfocused(mut self) -> Self {
+        self.borders = self.borders.clone().focused();
+        self
     }
 }
 
@@ -129,7 +141,7 @@ impl CanHandleUserinput for TextField <'_> {
                 self.move_cursor_start();
             }
             KeyCode::Char(character) => {
-                self.text.insert(self.cursor_offset, *character);
+                self.value.insert(self.cursor_offset, *character);
                 self.move_cursor_right();
             }
             KeyCode::Delete => {

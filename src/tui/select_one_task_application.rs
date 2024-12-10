@@ -1,4 +1,4 @@
-use ratatui::{layout::{Constraint, Layout, Rect}, widgets::Paragraph, Frame};
+use ratatui::{layout::{Constraint, Layout, Rect}, style::Style, widgets::{WidgetRef, Paragraph}, Frame};
 
 use crate::task::Task;
 
@@ -62,6 +62,9 @@ impl TaskListItem <'_> {
         let status = Field::new(area, Paragraph::new(status_text));
 
         Self { status }
+    }
+
+    fn render_focused(& self, frame: & mut Frame) {
     }
 
     fn render (& self, frame: & mut Frame) {

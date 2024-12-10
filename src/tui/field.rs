@@ -7,7 +7,7 @@ pub struct Field <Content> where Content: IsContent {
     content: Content
 }
 
-impl <Content> Field <Content> where Content: IsContent {
+impl <Content> Field <Content> where Content: IsContent + Clone {
     pub fn new (area: Rect, content: Content) -> Self {
         Self { area, content }
     }
@@ -16,17 +16,16 @@ impl <Content> Field <Content> where Content: IsContent {
         & self.content
     }
 
+    pub fn focus(& mut self) {
+        self.content = self.content.clone().focused();
+    }
+
+    pub fn unfocus(& mut self) {
+        self.content = self.content.clone().focused();
+    }
+
     pub fn render (& self, buffer: & mut Buffer) {
         self.content.render_ref(self.area, buffer);
-    }
-}
-
-impl <Content> CanBeFocused for Field <Content> where Content: IsContent {
-    fn focus(& mut self) {
-        self.content.focus();
-    }
-    fn unfocus(& mut self) {
-        self.content.unfocus();
     }
 }
 
