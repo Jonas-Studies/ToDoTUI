@@ -12,7 +12,9 @@ fn main() {
         vec![ Task::new(String::from("Programm schreiben")) ]
     };
 
-    tui::edit_one_task(& mut tasks[0]);
+    while let Some(index_of_selected_task) = tui::select_one_task(& tasks) {
+        tui::edit_one_task(& mut tasks[index_of_selected_task]);
+    }
 
     storage::set_tasks(& tasks);
 }
