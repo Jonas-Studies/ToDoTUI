@@ -4,35 +4,13 @@ use crate::task::Task;
 
 use super::{field::Field, traits::CanHandleUserinput};
 
-pub struct Application <'applications_lifetime> {
-    content: TaskList <'applications_lifetime>
-}
-
-impl Application <'_> {
-    pub fn new (tasks_to_select_from: & Vec<Task>, area: Rect) -> Self {
-        let content = TaskList::new(tasks_to_select_from, area);
-
-        Self { content }
-    }
-
-    pub fn render (& self, frame: & mut Frame) {
-        self.content.render(frame);
-    }
-}
-
-impl CanHandleUserinput for Application <'_> {
-    fn handle_userinput(& mut self, userinput: & KeyCode) {
-        self.content.handle_userinput(userinput);
-    }
-}
-
-struct TaskList <'lists_lifetime> {
+pub struct Application <'lists_lifetime> {
     items: Vec<TaskListItem <'lists_lifetime>>,
     index_of_selected_item: usize
 }
 
-impl TaskList <'_> {
-    fn new (tasks: & Vec<Task>, area: Rect) -> Self {
+impl Application <'_> {
+    pub fn new (tasks: & Vec<Task>, area: Rect) -> Self {
         let areas = Layout::vertical(
             vec![ Constraint::Length(2); tasks.len() ]
         ).split(area);
@@ -48,7 +26,7 @@ impl TaskList <'_> {
 
         Self { items, index_of_selected_item }
     }
-    fn render (& self, frame: & mut Frame) {
+    pub fn render (& self, frame: & mut Frame) {
         for item in self.items.iter() {
             item.render(frame);
         }
@@ -65,7 +43,7 @@ impl TaskList <'_> {
     }
 }
 
-impl CanHandleUserinput for TaskList <'_> {
+impl CanHandleUserinput for Application <'_> {
     fn handle_userinput(& mut self, userinput: & KeyCode) {
         match userinput {
             KeyCode::Down => {
