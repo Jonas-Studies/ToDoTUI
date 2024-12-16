@@ -50,7 +50,7 @@ impl CanHandleUserinput for Application <'_> {
     fn handle_userinput(& mut self, userinput: & KeyCode) {
         match userinput {
             KeyCode::Down => {
-                if self.index_of_selected_item < self.items.len() {
+                if self.index_of_selected_item < self.items.len() - 1 {
                     self.select_next_item();
                 }
             }
