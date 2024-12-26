@@ -1,7 +1,7 @@
 use crate::Task;
 
 use super::{
-    content::TextField,
+    content::{Button, TextField},
     field::Field,
     traits::{CanBeFocused, CanHandleUserinput, MayDisplayCursor}
 };
@@ -10,9 +10,16 @@ use ratatui::{
     crossterm::event::KeyCode, layout::{Constraint, Layout, Rect}, prelude::{Buffer, Position}, style::{Modifier, Stylize}, widgets::Paragraph
 };
 
+pub enum SelectableItems {
+    Name,
+    Finish
+}
+
 pub struct Application <'applications_lifetime> {
     status: Field <Paragraph <'applications_lifetime>>,
-    name: Field <TextField <'applications_lifetime>>
+    name: Field <TextField <'applications_lifetime>>,
+    finish: Field <Button <'applications_lifetime>>,
+    index_of_selected_item: SelectableItems
 }
 
 impl Application <'_> {
@@ -22,8 +29,8 @@ impl Application <'_> {
         area.y += 1;
         area.height -= 2;
 
-        let [ status_area, name_area ] = Layout::vertical(
-            [ Constraint::Length(1), Constraint::Length(3) ]
+        let [ status_area, name_area, finish_area ] = Layout::vertical(
+            [ Constraint::Length(1), Constraint::Length(3), Constraint::Length(3) ]
         ).spacing(1).areas(area);
 
         let status = Field::new(
@@ -43,13 +50,52 @@ impl Application <'_> {
             TextField::new(task_to_edit.get_name(), String::from("Name"))
         );
         name.focus();
+        let index_of_selected_item = SelectableItems::Name;
 
-        Self { status, name }
+        let [ finish_area ] = Layout::horizontal([ Constraint::Length(10) ]).areas(finish_area);
+
+        let finish = Field::new(
+            finish_area,
+            Button::new(String::from("Delete"))
+        );
+
+        Self { status, name, finish, index_of_selected_item }
     }
 
-    pub fn render (& self, buffer: & mut Buffer) {
+    pub fn render(& self, buffer: & mut Buffer) {
         self.status.render(buffer);
         self.name.render(buffer);
+        self.finish.render(buffer);
+    }
+
+    fn select_next_item(& mut self) {
+        match self.index_of_selected_item {
+            SelectableItems::Name => {
+                self.name.unfocus();
+                self.index_of_selected_item = SelectableItems::Finish;
+                self.finish.focus();
+            }
+            SelectableItems::Finish => {
+                self.finish.unfocus();
+                self.index_of_selected_item = SelectableItems::Name;
+                self.name.focus();
+            }
+        }
+    }
+
+    fn select_previous_item(& mut self) {
+        match self.index_of_selected_item {
+            SelectableItems::Finish => {
+                self.name.unfocus();
+                self.index_of_selected_item = SelectableItems::Finish;
+                self.finish.focus();
+            }
+            SelectableItems::Name => {
+                self.finish.unfocus();
+                self.index_of_selected_item = SelectableItems::Name;
+                self.name.focus();
+            }
+        }
     }
 
     pub fn save_task(& self, task: & mut Task) {
@@ -59,12 +105,29 @@ impl Application <'_> {
 
 impl MayDisplayCursor for Application <'_> {
     fn get_cursor_position(& self) -> Option<Position> {
-        self.name.get_cursor_position()
+        if let SelectableItems::Name = self.index_of_selected_item {
+            self.name.get_cursor_position()
+        }
+        else {
+            None
+        }
     }
 }
 
 impl CanHandleUserinput for Application <'_> {
     fn handle_userinput(& mut self, userinput: & KeyCode) {
-        self.name.handle_userinput(userinput);
+        match userinput {
+            KeyCode::Tab => {
+                self.select_next_item();
+            }
+            KeyCode::BackTab => {
+                self.select_previous_item();
+            }
+            _ => {
+                if let SelectableItems::Name = self.index_of_selected_item {
+                    self.name.handle_userinput(userinput);
+                }
+            }
+        }
     }
 }
