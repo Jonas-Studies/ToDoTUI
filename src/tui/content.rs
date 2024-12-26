@@ -180,7 +180,7 @@ impl CanBeFocused for Button <'_> {
         self
     }
     fn unfocused(mut self) -> Self {
-        self.borders = self.borders.clone().focused();
+        self.borders = self.borders.clone().unfocused();
         self
     }
 }
