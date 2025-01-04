@@ -13,16 +13,19 @@ fn main() {
 
     while let Some(index_of_selected_task) = tui::select_one_task(& tasks) {
         if index_of_selected_task == 0 {
-            let mut new_task = Task::new(String::new());
+            let new_task = Task::new(String::new());
             
-            tui::edit_one_task(& mut new_task);
-
-            if new_task.get_name() != "" {
+            if let Some(new_task) = tui::edit_one_task(new_task) {
                 tasks.insert(1, new_task);
             }
         }
         else {
-            tui::edit_one_task(& mut tasks[index_of_selected_task]);
+            if let Some(edited_task) = tui::edit_one_task(tasks[index_of_selected_task].clone()) {
+                tasks[index_of_selected_task] = edited_task;
+            }
+            else {
+                tasks.remove(index_of_selected_task);
+            }
         }
     }
 
