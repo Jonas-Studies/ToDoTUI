@@ -98,9 +98,10 @@ impl Application <'_> {
                                     result = None;
                                 }
                                 SelectableItems::Finish => {
+                                    self.task_to_edit.as_mut()?.finish();
+                                    result = self.get_task().clone();
                                 }
                                 _ => {
-                                    self.task_to_edit.as_mut()?.finish();
                                     result = self.get_task().clone();
                                 }
                             }
