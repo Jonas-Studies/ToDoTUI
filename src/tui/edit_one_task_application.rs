@@ -55,7 +55,7 @@ impl Application <'_> {
         name.focus();
         let index_of_selected_item = SelectableItems::Name;
 
-        let [ delete_area, finish_area ] = Layout::horizontal(
+        let [ finish_area, delete_area ] = Layout::horizontal(
             [ Constraint::Length(10), Constraint::Length(10) ]
         ).areas(delete_area);
 
