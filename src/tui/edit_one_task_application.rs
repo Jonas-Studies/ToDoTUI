@@ -127,16 +127,16 @@ impl Application <'_> {
         match self.index_of_selected_item {
             SelectableItems::Name => {
                 self.name.unfocus();
-                self.index_of_selected_item = SelectableItems::Delete;
-                self.delete.focus();
-            }
-            SelectableItems::Delete => {
-                self.delete.unfocus();
                 self.index_of_selected_item = SelectableItems::Finish;
                 self.finish.focus();
             }
             SelectableItems::Finish => {
                 self.finish.unfocus();
+                self.index_of_selected_item = SelectableItems::Delete;
+                self.delete.focus();
+            }
+            SelectableItems::Delete => {
+                self.delete.unfocus();
                 self.index_of_selected_item = SelectableItems::Name;
                 self.name.focus();
             }
@@ -145,20 +145,20 @@ impl Application <'_> {
 
     fn select_previous_item(& mut self) {
         match self.index_of_selected_item {
-            SelectableItems::Finish => {
-                self.finish.unfocus();
+            SelectableItems::Name => {
+                self.name.unfocus();
                 self.index_of_selected_item = SelectableItems::Delete;
                 self.delete.focus();
             }
             SelectableItems::Delete => {
                 self.delete.unfocus();
-                self.index_of_selected_item = SelectableItems::Name;
-                self.name.focus();
-            }
-            SelectableItems::Name => {
-                self.name.unfocus();
                 self.index_of_selected_item = SelectableItems::Finish;
                 self.finish.focus();
+            }
+            SelectableItems::Finish => {
+                self.finish.unfocus();
+                self.index_of_selected_item = SelectableItems::Name;
+                self.name.focus();
             }
         }
     }
