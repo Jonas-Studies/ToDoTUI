@@ -1,3 +1,5 @@
+pub mod traits;
+
 pub struct Content {
     content: TypesOfContent
 }
