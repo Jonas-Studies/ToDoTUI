@@ -1,8 +1,12 @@
 use ratatui::prelude::{Rect, Buffer};
+use title::Title;
 
 use super::traits::{CanBeFocused, CanBeRendered};
 
+mod title;
+
 pub enum TypesOfContent {
+    Title(Title)
 }
 
 impl CanBeRendered for TypesOfContent {
