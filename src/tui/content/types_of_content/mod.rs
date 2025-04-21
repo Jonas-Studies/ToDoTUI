@@ -3,7 +3,7 @@ use title::Title;
 
 use super::traits::{CanBeFocused, CanBeRendered};
 
-mod title;
+pub mod title;
 
 pub enum TypesOfContent {
     Title(Title)
