@@ -2,12 +2,13 @@ use ratatui::{crossterm::event::KeyCode, layout::{Constraint, Layout}};
 
 use crate::task::Task;
 
-use super::content::{traits::{CanBeRendered, CanHandleUserinput}, types_of_content::{textinput::Textinput, title::Title, TypesOfContent}, Content};
+use super::content::{traits::{CanBeFocused, CanBeRendered, CanHandleUserinput}, types_of_content::{textinput::Textinput, title::Title, TypesOfContent}, Content};
 
 pub struct Application {
     layout: Layout,
     task: Task,
-    content: Vec<Content>
+    content: Vec<Content>,
+    nr_of_focused_content: usize
 }
 
 impl Application {
@@ -25,7 +26,7 @@ impl Application {
             Content::new(TypesOfContent::Textinput(Textinput::new(task_to_edit.get_name(), String::from("Name"))))
         );
 
-        Self { layout, task: task_to_edit, content }
+        Self { layout, task: task_to_edit, content, nr_of_focused_content: 1 }
     }
     fn get_title(is_task_finished: bool) -> Title {
         Title::new(
@@ -39,6 +40,9 @@ impl Application {
             )
         )
     }
+    fn reference_focused_content_mutable(&mut self) -> &mut Content {
+        &mut self.content[self.nr_of_focused_content]
+    }
 }
 
 impl CanBeRendered for Application {
@@ -47,6 +51,21 @@ impl CanBeRendered for Application {
 
         for (nr_of_area, area) in areas.iter().enumerate() {
             self.content[nr_of_area].render(*area, buffer);
+        }
+    }
+}
+
+impl CanBeFocused for Application {
+    fn render_focused (&self, area: ratatui::prelude::Rect, buffer: &mut ratatui::prelude::Buffer) {
+        let areas = self.layout.split(area);
+
+        for (nr_of_area, area) in areas.iter().enumerate() {
+            if nr_of_area == self.nr_of_focused_content {
+                self.content[nr_of_area].render_focused(*area, buffer);
+            }
+            else {
+                self.content[nr_of_area].render(*area, buffer);
+            }
         }
     }
 }
@@ -62,7 +81,7 @@ impl CanHandleUserinput<PossibleActions> for Application {
                 Some(PossibleActions::Exit)
             }
             _ => {
-                self.content[1].handle_userinpt(userinput)
+                self.content[self.nr_of_focused_content].handle_userinpt(userinput)
             }
         }
     }
