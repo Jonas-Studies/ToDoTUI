@@ -4,6 +4,7 @@ use title::Title;
 use super::traits::{CanBeFocused, CanBeRendered};
 
 pub mod title;
+pub mod textinput;
 
 pub enum TypesOfContent {
     Title(Title)
