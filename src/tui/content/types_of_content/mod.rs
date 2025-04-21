@@ -6,6 +6,7 @@ use super::traits::{CanBeFocused, CanBeRendered, CanHandleUserinput};
 
 pub mod title;
 pub mod textinput;
+pub mod button;
 
 pub enum TypesOfContent {
     Title(Title),
