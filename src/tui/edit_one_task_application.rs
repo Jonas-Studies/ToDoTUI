@@ -1,8 +1,10 @@
+use core::ops::Deref;
+
 use ratatui::{crossterm::event::KeyCode, layout::{Constraint, Layout}};
 
 use crate::task::Task;
 
-use super::content::{traits::{CanBeFocused, CanBeRendered, CanHandleUserinput}, types_of_content::{button::Button, textinput::Textinput, title::Title, TypesOfContent}, Content};
+use super::content::{traits::{CanBeFocused, CanBeRendered, CanContainValue, CanHandleUserinput}, types_of_content::{button::Button, textinput::Textinput, title::Title, TypesOfContent}, Content};
 
 pub struct Application {
     layout: Layout,
@@ -135,6 +137,18 @@ impl CanHandleUserinput<PossibleActions> for Application {
                     result = self.reference_focused_content_mutable().handle_userinpt(userinput);
                 }
             }
+        }
+
+        return result;
+    }
+}
+
+impl CanContainValue<Task> for Application {
+    fn get_value(&self) -> Task {
+        let mut result = self.task.clone();
+
+        if let TypesOfContent::Textinput(name) = self.content[1].deref() {
+            result.set_name(name.get_value());
         }
 
         return result;
