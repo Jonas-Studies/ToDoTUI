@@ -1,6 +1,6 @@
 use ratatui::{crossterm::event::KeyCode, prelude::{Buffer, Rect}, style::{Style, Stylize}, widgets::{Block, Paragraph, Widget}};
 
-use crate::tui::content::traits::{CanBeFocused, CanBeRendered, CanHandleUserinput};
+use crate::tui::content::traits::{CanBeFocused, CanBeRendered, CanContainValue, CanHandleUserinput};
 
 pub struct Textinput {
     // Using a vector of chars instead of String because there would be problems with utf-8
@@ -14,9 +14,6 @@ impl Textinput {
         let value = Vec::from_iter(value.chars());
 
         Self { value, title, cursor_offset: 0 }
-    }
-    fn get_value(&self) -> String {
-        String::from_iter(self.value.iter())
     }
     fn get_title(&self) -> String {
         self.title.clone()
@@ -112,5 +109,11 @@ impl<PossibleActions> CanHandleUserinput<PossibleActions> for Textinput {
             _ => {}
         }
         None
+    }
+}
+
+impl CanContainValue<String> for Textinput {
+    fn get_value(&self) -> String {
+        String::from_iter(self.value.iter())
     }
 }
