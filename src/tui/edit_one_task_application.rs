@@ -4,7 +4,7 @@ use ratatui::{crossterm::event::KeyCode, layout::{Constraint, Layout}};
 
 use crate::task::Task;
 
-use super::content::{traits::{CanBeFocused, CanBeRendered, CanContainValue, CanHandleUserinput}, types_of_content::{button::Button, textinput::Textinput, title::Title, TypesOfContent}, Content};
+use super::content::{traits::{CanBeFocused, CanBeRendered, CanContainValue, CanHandleUserinput, MayDisplayCursor}, types_of_content::{button::Button, textinput::Textinput, title::Title, TypesOfContent}, Content};
 
 pub struct Application {
     layout: Layout,
@@ -27,7 +27,7 @@ impl Application {
         content.push(
             Content::new(
                 TypesOfContent::Textinput(Textinput::new(task_to_edit.get_name(), String::from("Name")))
-            ).as_can_be_focused().as_can_handle_userinput()
+            ).as_can_be_focused().as_can_handle_userinput().as_can_display_cursor()
         );
         content.push(
             Content::new(
@@ -152,5 +152,18 @@ impl CanContainValue<Task> for Application {
         }
 
         return result;
+    }
+}
+
+impl MayDisplayCursor for Application {
+    fn get_cursor_position(&self, area: ratatui::prelude::Rect) -> Option<ratatui::prelude::Position> {
+        if self.reference_focused_content().can_display_cursor() == true {
+            let areas = self.layout.split(area);
+
+            self.reference_focused_content().get_cursor_position(areas[self.nr_of_focused_content])
+        }
+        else {
+            None
+        }
     }
 }
