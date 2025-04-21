@@ -1,4 +1,5 @@
 mod content;
+mod edit_one_task_application;
 
 use crate::Task;
 
