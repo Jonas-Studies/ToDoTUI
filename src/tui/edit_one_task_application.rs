@@ -1,8 +1,8 @@
-use ratatui::layout::{Constraint, Layout};
+use ratatui::{crossterm::event::KeyCode, layout::{Constraint, Layout}};
 
 use crate::task::Task;
 
-use super::content::{traits::CanBeRendered, types_of_content::{title::Title, TypesOfContent}, Content};
+use super::content::{traits::{CanBeRendered, CanHandleUserinput}, types_of_content::{title::Title, TypesOfContent}, Content};
 
 pub struct Application {
     layout: Layout,
@@ -42,6 +42,23 @@ impl CanBeRendered for Application {
 
         for (nr_of_area, area) in areas.iter().enumerate() {
             self.content[nr_of_area].render(*area, buffer);
+        }
+    }
+}
+
+pub enum PossibleActions {
+    Exit
+}
+
+impl CanHandleUserinput<PossibleActions> for Application {
+    fn handle_userinpt(&mut self, userinput: KeyCode) -> Option<PossibleActions> {
+        match userinput {
+            KeyCode::Esc => {
+                Some(PossibleActions::Exit)
+            }
+            _ => {
+                None
+            }
         }
     }
 }
