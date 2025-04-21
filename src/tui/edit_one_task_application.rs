@@ -62,7 +62,7 @@ impl CanHandleUserinput<PossibleActions> for Application {
                 Some(PossibleActions::Exit)
             }
             _ => {
-                None
+                self.content[1].handle_userinpt(userinput)
             }
         }
     }
