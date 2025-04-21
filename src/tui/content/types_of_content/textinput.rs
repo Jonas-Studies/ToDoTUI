@@ -1,6 +1,6 @@
-use ratatui::{crossterm::event::KeyCode, prelude::{Buffer, Rect}, widgets::{Block, Paragraph, Widget}};
+use ratatui::{crossterm::event::KeyCode, prelude::{Buffer, Rect}, style::{Style, Stylize}, widgets::{Block, Paragraph, Widget}};
 
-use crate::tui::content::traits::{CanBeRendered, CanHandleUserinput};
+use crate::tui::content::traits::{CanBeFocused, CanBeRendered, CanHandleUserinput};
 
 pub struct Textinput {
     // Using a vector of chars instead of String because there would be problems with utf-8
@@ -64,6 +64,14 @@ impl CanBeRendered for Textinput {
     fn render (&self, area: Rect, buffer: &mut Buffer) {
         Paragraph::new(self.get_value()).block(
             Block::bordered().title(self.get_title())
+        ).render(area, buffer);
+    }
+}
+
+impl CanBeFocused for Textinput {
+    fn render_focused (&self, area: Rect, buffer: &mut Buffer) {
+        Paragraph::new(self.get_value()).block(
+            Block::bordered().title(self.get_title()).border_style(Style::new().yellow())
         ).render(area, buffer);
     }
 }
