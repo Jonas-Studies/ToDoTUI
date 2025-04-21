@@ -1,7 +1,7 @@
 pub mod traits;
 pub mod types_of_content;
 
-use core::ops::Deref;
+use core::ops::{Deref, DerefMut};
 
 use types_of_content::TypesOfContent;
 
@@ -20,5 +20,11 @@ impl Deref for Content {
 
     fn deref(&self) -> &Self::Target {
         &self.content
+    }
+}
+
+impl DerefMut for Content {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.content
     }
 }
