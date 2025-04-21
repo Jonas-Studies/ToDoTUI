@@ -2,7 +2,7 @@ use ratatui::{crossterm::event::KeyCode, layout::{Constraint, Layout}};
 
 use crate::task::Task;
 
-use super::content::{traits::{CanBeFocused, CanBeRendered, CanHandleUserinput}, types_of_content::{textinput::Textinput, title::Title, TypesOfContent}, Content};
+use super::content::{traits::{CanBeFocused, CanBeRendered, CanHandleUserinput}, types_of_content::{button::Button, textinput::Textinput, title::Title, TypesOfContent}, Content};
 
 pub struct Application {
     layout: Layout,
@@ -14,7 +14,7 @@ pub struct Application {
 impl Application {
     pub fn new(task_to_edit: Task) -> Self {
         let layout = Layout::vertical(
-            [ Constraint::Length(1), Constraint::Length(3) ]
+            [ Constraint::Length(1), Constraint::Length(3), Constraint::Length(3) ]
         ).spacing(1).vertical_margin(1).horizontal_margin(3);
 
         let mut content = Vec::new();
@@ -25,6 +25,11 @@ impl Application {
         content.push(
             Content::new(
                 TypesOfContent::Textinput(Textinput::new(task_to_edit.get_name(), String::from("Name")))
+            ).as_can_be_focused().as_can_handle_userinput()
+        );
+        content.push(
+            Content::new(
+                TypesOfContent::Button(Button::new(String::from("Finish"), PossibleActions::Finish))
             ).as_can_be_focused().as_can_handle_userinput()
         );
 
@@ -105,8 +110,10 @@ impl CanBeFocused for Application {
     }
 }
 
+#[derive(Clone)]
 pub enum PossibleActions {
-    Exit
+    Exit,
+    Finish
 }
 
 impl CanHandleUserinput<PossibleActions> for Application {
