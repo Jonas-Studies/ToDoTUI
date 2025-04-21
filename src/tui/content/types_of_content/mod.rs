@@ -2,7 +2,7 @@ use ratatui::prelude::{Rect, Buffer};
 use textinput::Textinput;
 use title::Title;
 
-use super::traits::{CanBeFocused, CanBeRendered};
+use super::traits::{CanBeFocused, CanBeRendered, CanHandleUserinput};
 
 pub mod title;
 pub mod textinput;
@@ -25,6 +25,15 @@ impl CanBeFocused for TypesOfContent {
     fn render_focused (&self, area: Rect, buffer: &mut Buffer) {
         match self {
             _ => { }
+        }
+    }
+}
+
+impl<PossibleActions> CanHandleUserinput<PossibleActions> for TypesOfContent {
+    fn handle_userinpt(&mut self, userinput: ratatui::crossterm::event::KeyCode) -> Option<PossibleActions> {
+        match self {
+            TypesOfContent::Textinput(content) => { content.handle_userinpt(userinput) }
+            _ => { None }
         }
     }
 }
