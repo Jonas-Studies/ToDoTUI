@@ -25,7 +25,7 @@ impl Application {
         content.push(
             Content::new(
                 TypesOfContent::Textinput(Textinput::new(task_to_edit.get_name(), String::from("Name")))
-            ).as_can_be_focused()
+            ).as_can_be_focused().as_can_handle_userinput()
         );
 
         Self { layout, task: task_to_edit, content, nr_of_focused_content: 1 }
@@ -124,7 +124,9 @@ impl CanHandleUserinput<PossibleActions> for Application {
                 self.focus_previous_content();
             }
             _ => {
-                result = self.reference_focused_content_mutable().handle_userinpt(userinput)
+                if self.reference_focused_content().can_handle_userinput() {
+                    result = self.reference_focused_content_mutable().handle_userinpt(userinput);
+                }
             }
         }
 
