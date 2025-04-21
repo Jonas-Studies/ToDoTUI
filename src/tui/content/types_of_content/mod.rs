@@ -5,7 +5,7 @@ use ratatui::prelude::{Rect, Buffer};
 use textinput::Textinput;
 use title::Title;
 
-use super::traits::{CanBeFocused, CanBeRendered, CanHandleUserinput};
+use super::traits::{CanBeFocused, CanBeRendered, CanHandleUserinput, MayDisplayCursor};
 
 pub mod title;
 pub mod textinput;
@@ -42,6 +42,15 @@ impl<PossibleActions> CanHandleUserinput<PossibleActions> for TypesOfContent<Pos
         match self {
             TypesOfContent::Textinput(content) => { content.handle_userinpt(userinput) }
             TypesOfContent::Button(content) => { content.handle_userinpt(userinput) }
+            _ => { None }
+        }
+    }
+}
+
+impl<PossibleActions> MayDisplayCursor for TypesOfContent<PossibleActions> where PossibleActions: Clone {
+    fn get_cursor_position(&self, area: Rect) -> Option<ratatui::prelude::Position> {
+        match self {
+            TypesOfContent::Textinput(content) => { content.get_cursor_position(area) }
             _ => { None }
         }
     }

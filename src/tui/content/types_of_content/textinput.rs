@@ -1,6 +1,6 @@
-use ratatui::{crossterm::event::KeyCode, prelude::{Buffer, Rect}, style::{Style, Stylize}, widgets::{Block, Paragraph, Widget}};
+use ratatui::{crossterm::event::KeyCode, layout::Positions, prelude::{Buffer, Position, Rect}, style::{Style, Stylize}, widgets::{Block, Paragraph, Widget}};
 
-use crate::tui::content::traits::{CanBeFocused, CanBeRendered, CanContainValue, CanHandleUserinput};
+use crate::tui::content::traits::{CanBeFocused, CanBeRendered, CanContainValue, CanHandleUserinput, MayDisplayCursor};
 
 pub struct Textinput {
     // Using a vector of chars instead of String because there would be problems with utf-8
@@ -115,5 +115,17 @@ impl<PossibleActions> CanHandleUserinput<PossibleActions> for Textinput {
 impl CanContainValue<String> for Textinput {
     fn get_value(&self) -> String {
         String::from_iter(self.value.iter())
+    }
+}
+
+impl MayDisplayCursor for Textinput {
+    fn get_cursor_position(&self, area: Rect) -> Option<Position> {
+        Some(
+            // Always adding 1 because of the borders
+            Position::new(
+                area.x + 1 + self.cursor_offset as u16,
+                area.y + 1
+            )
+        )
     }
 }
