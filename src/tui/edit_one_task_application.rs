@@ -98,7 +98,7 @@ impl CanHandleUserinput<PossibleActions> for Application {
         if result.is_none() {
             match userinput {
                 KeyCode::Esc => {
-                    Some(PossibleActions::Exit);
+                    result = Some(PossibleActions::Exit);
                 }
                 KeyCode::Enter => {
                     result = Some(PossibleActions::Save);
