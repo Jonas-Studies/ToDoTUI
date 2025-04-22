@@ -36,6 +36,7 @@ impl<PossibleActions> CanBeFocused for TypesOfContent<PossibleActions> where Pos
         match self {
             TypesOfContent::Textinput(content) => { content.render_focused(area, buffer); }
             TypesOfContent::Button(content) => { content.render_focused(area, buffer); }
+            TypesOfContent::Contaier(content) => { content.render_focused(area, buffer); }
             _ => { self.render(area, buffer); }
         }
     }
@@ -46,6 +47,7 @@ impl<PossibleActions> CanHandleUserinput<PossibleActions> for TypesOfContent<Pos
         match self {
             TypesOfContent::Textinput(content) => { content.handle_userinpt(userinput) }
             TypesOfContent::Button(content) => { content.handle_userinpt(userinput) }
+            TypesOfContent::Contaier(content) => { content.handle_userinpt(userinput) }
             _ => { None }
         }
     }
@@ -55,6 +57,7 @@ impl<PossibleActions> MayDisplayCursor for TypesOfContent<PossibleActions> where
     fn get_cursor_position(&self, area: Rect) -> Option<ratatui::prelude::Position> {
         match self {
             TypesOfContent::Textinput(content) => { content.get_cursor_position(area) }
+            TypesOfContent::Contaier(content) => { content.get_cursor_position(area) }
             _ => { None }
         }
     }
