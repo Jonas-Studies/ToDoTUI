@@ -1,16 +1,14 @@
-use core::ops::Deref;
+use std::ops::Deref;
 
 use ratatui::{crossterm::event::KeyCode, layout::{Constraint, Layout}};
 
 use crate::task::Task;
 
-use super::content::{traits::{CanBeFocused, CanBeRendered, CanContainValue, CanHandleUserinput, MayDisplayCursor}, types_of_content::{button::Button, textinput::Textinput, title::Title, TypesOfContent}, Content};
+use super::content::{traits::{CanBeFocused, CanBeRendered, CanContainValue, CanHandleUserinput, MayDisplayCursor}, types_of_content::{button::Button, container::Container, textinput::Textinput, title::Title, TypesOfContent}, Content};
 
 pub struct Application {
-    layout: Layout,
     task: Task,
-    content: Vec<Content<PossibleActions>>,
-    nr_of_focused_content: usize
+    content: Container<PossibleActions>
 }
 
 impl Application {
@@ -19,23 +17,25 @@ impl Application {
             [ Constraint::Length(1), Constraint::Length(3), Constraint::Length(3) ]
         ).spacing(1).vertical_margin(1).horizontal_margin(3);
 
-        let mut content = Vec::new();
+        let mut content = Container::new(layout);
 
-        content.push(
+        content.push_content(
             Content::new(TypesOfContent::Title(Self::get_title(task_to_edit.is_finished())))
         );
-        content.push(
+        content.push_content(
             Content::new(
                 TypesOfContent::Textinput(Textinput::new(task_to_edit.get_name(), String::from("Name")))
             ).as_can_be_focused().as_can_handle_userinput().as_can_display_cursor()
         );
-        content.push(
+        content.push_content(
             Content::new(
-                TypesOfContent::Button(Button::new(String::from("Finish"), PossibleActions::Finish))
+                TypesOfContent::Contaier(Self::get_buttons_as_container())
             ).as_can_be_focused().as_can_handle_userinput()
         );
 
-        Self { layout, task: task_to_edit, content, nr_of_focused_content: 1 }
+        content.focus_first();
+
+        Self { task: task_to_edit, content }
     }
     fn get_title(is_task_finished: bool) -> Title {
         Title::new(
@@ -49,66 +49,37 @@ impl Application {
             )
         )
     }
-    fn reference_focused_content(&self) -> &Content<PossibleActions> {
-        &self.content[self.nr_of_focused_content]
-    }
-    fn reference_focused_content_mutable(&mut self) -> &mut Content<PossibleActions> {
-        &mut self.content[self.nr_of_focused_content]
-    }
-    fn get_nr_of_last_content(&self) -> usize {
-        self.content.len() - 1
-    }
-    fn get_nr_of_first_content(&self) -> usize {
-        0
-    }
-    fn focus_next_content(&mut self) {
-        if self.nr_of_focused_content == self.get_nr_of_last_content() {
-            self.nr_of_focused_content = self.get_nr_of_first_content();
-        }
-        else {
-            self.nr_of_focused_content += 1;
-        }
-        
-        if self.reference_focused_content().can_be_focused() == false {
-            self.focus_next_content();
-        }
-    }
-    fn focus_previous_content(&mut self) {
-        if self.nr_of_focused_content == self.get_nr_of_first_content() {
-            self.nr_of_focused_content = self.get_nr_of_last_content();
-        }
-        else {
-            self.nr_of_focused_content -= 1;
-        }
-        
-        if self.reference_focused_content().can_be_focused() == false {
-            self.focus_previous_content();
-        }
+    fn get_buttons_as_container() -> Container<PossibleActions> {
+        let layout = Layout::horizontal(
+            [ Constraint::Length(10), Constraint::Length(10) ]
+        );
+
+        let mut result = Container::new(layout);
+
+        result.push_content(
+            Content::new(
+                TypesOfContent::Button(Button::new(String::from("Finish"), PossibleActions::Finish))
+            ).as_can_be_focused().as_can_handle_userinput()
+        );
+        result.push_content(
+            Content::new(
+                TypesOfContent::Button(Button::new(String::from("Finish"), PossibleActions::Finish))
+            ).as_can_be_focused().as_can_handle_userinput()
+        );
+
+        return result;
     }
 }
 
 impl CanBeRendered for Application {
     fn render (&self, area: ratatui::prelude::Rect, buffer: &mut ratatui::prelude::Buffer) {
-        let areas = self.layout.split(area);
-
-        for (nr_of_area, area) in areas.iter().enumerate() {
-            self.content[nr_of_area].render(*area, buffer);
-        }
+        self.content.render(area, buffer);
     }
 }
 
 impl CanBeFocused for Application {
     fn render_focused (&self, area: ratatui::prelude::Rect, buffer: &mut ratatui::prelude::Buffer) {
-        let areas = self.layout.split(area);
-
-        for (nr_of_area, area) in areas.iter().enumerate() {
-            if nr_of_area == self.nr_of_focused_content {
-                self.content[nr_of_area].render_focused(*area, buffer);
-            }
-            else {
-                self.content[nr_of_area].render(*area, buffer);
-            }
-        }
+        self.content.render_focused(area, buffer);
     }
 }
 
@@ -120,26 +91,14 @@ pub enum PossibleActions {
 
 impl CanHandleUserinput<PossibleActions> for Application {
     fn handle_userinpt(&mut self, userinput: KeyCode) -> Option<PossibleActions> {
-        let mut result = None;
-
         match userinput {
             KeyCode::Esc => {
-                result = Some(PossibleActions::Exit);
-            }
-            KeyCode::Tab => {
-                self.focus_next_content();
-            }
-            KeyCode::BackTab => {
-                self.focus_previous_content();
+                Some(PossibleActions::Exit)
             }
             _ => {
-                if self.reference_focused_content().can_handle_userinput() {
-                    result = self.reference_focused_content_mutable().handle_userinpt(userinput);
-                }
+                self.content.handle_userinpt(userinput)
             }
         }
-
-        return result;
     }
 }
 
@@ -147,7 +106,7 @@ impl CanContainValue<Task> for Application {
     fn get_value(&self) -> Task {
         let mut result = self.task.clone();
 
-        if let TypesOfContent::Textinput(name) = self.content[1].deref() {
+        if let TypesOfContent::Textinput(name) = self.content.reference_content(1).deref() {
             result.set_name(name.get_value());
         }
 
@@ -157,13 +116,6 @@ impl CanContainValue<Task> for Application {
 
 impl MayDisplayCursor for Application {
     fn get_cursor_position(&self, area: ratatui::prelude::Rect) -> Option<ratatui::prelude::Position> {
-        if self.reference_focused_content().can_display_cursor() == true {
-            let areas = self.layout.split(area);
-
-            self.reference_focused_content().get_cursor_position(areas[self.nr_of_focused_content])
-        }
-        else {
-            None
-        }
+        self.content.get_cursor_position(area)
     }
 }
