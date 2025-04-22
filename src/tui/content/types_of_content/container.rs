@@ -27,6 +27,9 @@ impl <PossibleActions> Container<PossibleActions> where PossibleActions: Clone {
     fn reference_content_mutable(&mut self,nr: usize) -> &mut Content<PossibleActions> {
         &mut self.content[nr]
     }
+    pub fn get_nr_of_focused_content(&self) -> Option<usize> {
+        self.nr_of_focused_content.clone()
+    }
     fn get_nr_of_last_content(&self) -> usize {
         self.content.len() - 1
     }

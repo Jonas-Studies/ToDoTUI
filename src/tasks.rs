@@ -1,3 +1,5 @@
+use core::ops::Deref;
+
 use crate::task::Task;
 
 pub struct Tasks {
@@ -51,5 +53,13 @@ impl Tasks {
                 self.content[index_of_current_task] = self.content[index_of_next_task].clone();
             }
         }
+    }
+}
+
+impl Deref for Tasks {
+    type Target = Vec<Task>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.content
     }
 }
